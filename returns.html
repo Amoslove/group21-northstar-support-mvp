@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -30,7 +29,7 @@
 <body>
 
 
-    <!--  HEADER  -->
+    <!-- HEADER -->
 
     <header class="header">
 
@@ -51,6 +50,7 @@
                 </span>
 
             </div>
+
             <a href="index.html" class="back-link">
                 ← Back to Support
             </a>
@@ -65,19 +65,10 @@
 
     <main class="main">
 
-
-       
-
-        
-
-
-
-        <!-- RETURNS SECTION -->
-
         <section class="returns-section">
 
 
-            <!-- Page Heading -->
+            <!-- PAGE HEADING -->
 
             <div class="returns-heading">
 
@@ -102,7 +93,7 @@
 
 
 
-            <!-- OPTIONS  -->
+            <!-- OPTIONS -->
 
             <div class="return-options">
 
@@ -236,7 +227,7 @@
 
 
 
-            <!--  REFUND FORM  -->
+            <!-- REFUND FORM -->
 
             <div
                 class="return-form-container"
@@ -295,7 +286,7 @@
 
 
 
-            <!--RETURN POLICY -->
+            <!-- RETURN POLICY -->
 
             <div class="return-policy">
 
@@ -326,7 +317,7 @@
 
 
 
-    <!-- FOOTER  -->
+    <!-- FOOTER -->
 
     <footer class="footer">
 
@@ -354,9 +345,13 @@
 
 
 
-     TEMPORARY JAVASCRIPT
+    <!-- BACKEND CONNECTED JAVASCRIPT -->
 
     <script>
+
+        // ============================================
+        // SHOW RETURN FORM
+        // ============================================
 
         function showReturnForm() {
 
@@ -367,6 +362,11 @@
         }
 
 
+
+        // ============================================
+        // SHOW REFUND FORM
+        // ============================================
+
         function showRefundForm() {
 
             document.getElementById("refundForm").style.display = "block";
@@ -376,7 +376,12 @@
         }
 
 
-        function checkReturn() {
+
+        // ============================================
+        // CHECK RETURN ELIGIBILITY
+        // ============================================
+
+        async function checkReturn() {
 
             const orderNumber =
                 document.getElementById("returnOrderNumber").value.trim();
@@ -385,6 +390,8 @@
                 document.getElementById("returnMessage");
 
 
+            // Empty input
+
             if (orderNumber === "") {
 
                 message.textContent =
@@ -398,16 +405,74 @@
             }
 
 
-            message.textContent =
-                "✓ Order found. This order is eligible for return within 10 days.";
+            try {
 
-            message.className =
-                "form-message success-message";
+                const response = await fetch(
+                    `http://localhost:3000/api/returns/${encodeURIComponent(orderNumber)}`
+                );
+
+
+                const data = await response.json();
+
+
+                // Order does not exist
+
+                if (!response.ok) {
+
+                    message.textContent =
+                        data.error || "Order not found";
+
+                    message.className =
+                        "form-message error-message";
+
+                    return;
+
+                }
+
+
+                // Order exists but is not eligible
+
+                if (!data.eligible) {
+
+                    message.textContent =
+                        data.message;
+
+                    message.className =
+                        "form-message error-message";
+
+                    return;
+
+                }
+
+
+                // Order is eligible
+
+                message.textContent =
+                    "✓ " + data.message;
+
+                message.className =
+                    "form-message success-message";
+
+
+            } catch (error) {
+
+                message.textContent =
+                    "Unable to connect to the Northstar backend.";
+
+                message.className =
+                    "form-message error-message";
+
+            }
 
         }
 
 
-        function checkRefund() {
+
+        // ============================================
+        // CHECK REFUND STATUS
+        // ============================================
+
+        async function checkRefund() {
 
             const orderNumber =
                 document.getElementById("refundOrderNumber").value.trim();
@@ -416,6 +481,8 @@
                 document.getElementById("refundMessage");
 
 
+            // Empty input
+
             if (orderNumber === "") {
 
                 message.textContent =
@@ -429,15 +496,53 @@
             }
 
 
-            message.textContent =
-                "✓ Your refund has been processed. Please allow 3-5 working days for the funds to arrive.";
+            try {
 
-            message.className =
-                "form-message success-message";
+                const response = await fetch(
+                    `http://localhost:3000/api/refunds/${encodeURIComponent(orderNumber)}`
+                );
+
+
+                const data = await response.json();
+
+
+                // Order does not exist
+
+                if (!response.ok) {
+
+                    message.textContent =
+                        data.error || "Order not found";
+
+                    message.className =
+                        "form-message error-message";
+
+                    return;
+
+                }
+
+
+                // Show refund status
+
+                message.textContent =
+                    "✓ " + data.message;
+
+                message.className =
+                    "form-message success-message";
+
+
+            } catch (error) {
+
+                message.textContent =
+                    "Unable to connect to the Northstar backend.";
+
+                message.className =
+                    "form-message error-message";
+
+            }
 
         }
 
-    </script> 
+    </script>
 
 
 </body>

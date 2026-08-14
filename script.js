@@ -1,39 +1,11 @@
-
-// 
+// ========================================
 // NORTHSTAR ORDER TRACKING
-// 
+// ========================================
 
 
-// Sample order data
-
-
-const orders = {
-
-    "NS1024": {
-        status: "Shipped",
-        deliveryDate: "August 15, 2026",
-        carrier: "Northstar Express"
-    },
-
-    "NS2025": {
-        status: "Processing",
-        deliveryDate: "August 18, 2026",
-        carrier: "Northstar Express"
-    },
-
-    "NS3030": {
-        status: "Delivered",
-        deliveryDate: "August 10, 2026",
-        carrier: "Northstar Express"
-    }
-
-};
-
-
-
-// 
+// ========================================
 // FIND THE BUTTON AND FORM ELEMENTS
-// 
+// ========================================
 
 const trackButton = document.getElementById("trackButton");
 
@@ -42,10 +14,9 @@ const orderInput = document.getElementById("orderNumber");
 const orderResult = document.querySelector(".order-result");
 
 
-
-// 
+// ========================================
 // HIDE RESULT AT THE BEGINNING
-// 
+// ========================================
 
 if (orderResult) {
 
@@ -54,17 +25,17 @@ if (orderResult) {
 }
 
 
-
-// 
+// ========================================
 // TRACK ORDER
-// 
+// ========================================
 
 if (trackButton) {
 
     trackButton.addEventListener("click", function () {
 
         // Get what the customer typed
-        const orderNumber = orderInput.value.trim().toUpperCase();
+        const orderNumber =
+            orderInput.value.trim().toUpperCase();
 
 
         // Check if the customer entered anything
@@ -77,62 +48,106 @@ if (trackButton) {
         }
 
 
-        // Look for the order
-        const order = orders[orderNumber];
+        // ========================================
+        // ASK THE BACKEND FOR THE ORDER
+        // ========================================
+
+        fetch(`http://localhost:3000/api/orders/${orderNumber}`)
+
+            .then(response => {
+
+                // Backend could not find the order
+                if (!response.ok) {
+
+                    throw new Error("Order not found");
+
+                }
+
+                // Convert the response into JavaScript data
+                return response.json();
+
+            })
 
 
-        // If order doesn't exist
-        if (!order) {
+            .then(order => {
 
-            alert(
-                "We couldn't find that order. Please check your order number and try again."
-            );
+                // ========================================
+                // SHOW ORDER RESULT
+                // ========================================
 
-            return;
-
-        }
+                orderResult.style.display = "block";
 
 
-        // Show the order result
-        orderResult.style.display = "block";
+                // ========================================
+                // UPDATE ORDER NUMBER
+                // ========================================
+
+                const resultOrderNumber =
+                    document.querySelector(".result-header h3");
+
+                resultOrderNumber.textContent =
+                    "#" + orderNumber;
 
 
-        // Update order number
-        const resultOrderNumber =
-            document.querySelector(".result-header h3");
+                // ========================================
+                // UPDATE STATUS
+                // ========================================
 
-        resultOrderNumber.textContent =
-            "#" + orderNumber;
+                const statusBadge =
+                    document.querySelector(".status-badge");
 
-
-        // Update status
-        const statusBadge =
-            document.querySelector(".status-badge");
-
-        statusBadge.textContent =
-            order.status;
+                statusBadge.textContent =
+                    order.status;
 
 
-        // Update delivery date
-        const deliveryDate =
-            document.querySelector(".delivery-info div:first-child strong");
+                // ========================================
+                // UPDATE DELIVERY DATE
+                // ========================================
 
-        deliveryDate.textContent =
-            order.deliveryDate;
+                const deliveryDate =
+                    document.querySelector(
+                        ".delivery-info div:first-child strong"
+                    );
 
-
-        // Update carrier
-        const carrier =
-            document.querySelector(".delivery-info div:last-child strong");
-
-        carrier.textContent =
-            order.carrier;
+                deliveryDate.textContent =
+                    order.deliveryDate;
 
 
-        // Scroll to result
-        orderResult.scrollIntoView({
-            behavior: "smooth"
-        });
+                // ========================================
+                // UPDATE CARRIER
+                // ========================================
+
+                const carrier =
+                    document.querySelector(
+                        ".delivery-info div:last-child strong"
+                    );
+
+                carrier.textContent =
+                    order.carrier;
+
+
+                // ========================================
+                // SCROLL TO RESULT
+                // ========================================
+
+                orderResult.scrollIntoView({
+                    behavior: "smooth"
+                });
+
+            })
+
+
+            // ========================================
+            // HANDLE ERRORS
+            // ========================================
+
+            .catch(error => {
+
+                alert(
+                    "We couldn't find that order. Please check your order number and try again."
+                );
+
+            });
 
     });
 
