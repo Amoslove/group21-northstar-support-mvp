@@ -56,7 +56,7 @@ group21-northstar-support-mvp/
 ...
 
 ## Team
- Brian Ndolo | Tean Lead Developer |
+ Brian Ndolo | Team Lead Developer |
 | Amoslove | Frontend / Developer |
 | E-uppa | Developer / Tester |
 | SWNgugi | Developer 
